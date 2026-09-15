@@ -1,0 +1,176 @@
+import sys
+import time
+
+user_db = {}
+
+parking_lot = {
+    "A1":{"Status":"Available","User-Assigned":"","Starttime":None},
+    "A2":{"Status":"Available","User-Assigned":"","Starttime":None},
+    "A3":{"Status":"Available","User-Assigned":"","Starttime":None},
+}
+
+HOURLY_RATE = 100.0
+
+current_user = None
+
+def Register_User():
+    print("Register a new account please:")
+    username = input("Enter a unique username in lowercase: ").strip().lower()
+
+    if not username:
+        print("Username cannot be empty!")
+        return
+
+    if username in user_db:
+        print("Username already exists. Choose a new one")
+        return
+
+    name = input("Now your full name :").strip()
+    email = input("Now your email: ").strip()
+    license_plate = input("Now your license plate: ").strip().upper()
+
+    new_user = {
+        "username":username, 
+        "name" : name,
+        "email":email,
+        "license_plate":license_plate,
+        "fees":0.0
+    }
+
+    user_db[username] = new_user
+
+    print(f"{name} has registered successfully!")
+
+def user_login():
+    global current_user
+
+    print("Log in:")
+    username = input("Enter your username:").strip()
+
+    if username in user_db:
+        print("Username found") 
+
+        current_user = user_db[username]
+        print(f"Welcome back {current_user['name']} ")
+    else:
+        print(f"{username} not found! Error 404. Please register")
+
+def user_logout():
+    global current_user
+
+    if current_user is None:
+        print("You are not logged in")
+        return
+    
+    print(f"Goodbye {current_user['name']}")
+    current_user = None
+    print("You are logged out")
+
+def check_in():
+    global current_user
+
+    if not current_user:
+        print("you must log in to park car!")
+        return
+    else:
+        print("current user:")
+        print(f" name : {current_user['name']}\n email : {current_user['email']}\n license_plate: {current_user['license_plate']}")
+
+    for spot, info in parking_lot.items(): 
+        if info['User-Assigned'] == current_user["username"]:
+            print(f"your car: {current_user['license_plate']} is found at spot: {spot}")
+
+    assigned_spot = None
+    for spot, info in parking_lot.items():
+        if info["Status"] == "Available":
+            assigned_spot = spot
+            break
+
+    if not assigned_spot:
+        print("Sorry! Parking Lot is already full")
+
+    parking_lot[assigned_spot]["Status"] = "Occupied"
+    parking_lot[assigned_spot]["User-Assigned"] = current_user["username"]
+    parking_lot[assigned_spot]["Starttime"] = time.time()
+
+    print(f"\nSuccess! Spot {assigned_spot} assigned to {current_user['name']} ({current_user['license_plate']}).")
+            
+    
+def check_out():
+    global current_user
+
+    if not current_user:
+        print("you must be checked in to check out")
+        return
+
+    user_spot = None
+    for spot, info in parking_lot.items():
+        if info["User-Assigned"] == current_user["username"]:
+            user_spot = spot
+            break
+    if not user_spot:
+        print("No Vehicle found at any spot")
+        return
+
+    starttime = parking_lot[user_spot]["Starttime"]
+    endtime = time.time()
+    duration_seconds = endtime - starttime
+
+    time_in_hours = duration_seconds/(60 * 60)
+    total_bill = round(time_in_hours*HOURLY_RATE,2)
+
+    current_user["fees"] +=total_bill
+
+    print("\nCheck-Out Summary")
+    print(f"Spot Released: {user_spot}")
+    print(f"Time Parked:   {duration_seconds:.2f} seconds ({time_in_hours:.4f} hours)")
+    print(f"Rate:          KSh {HOURLY_RATE}/hour")
+    print(f"Amount Due:    KSh {total_bill:.2f}")
+
+    parking_lot[user_spot]["Status"] = "Available"
+    parking_lot[user_spot]["User-Assigned"] = ""
+    parking_lot[user_spot]["Starttime"] = 0.0
+
+def view_status():
+    global current_user
+    print("\nCurrent Parking Lot Status") 
+    for spot, info in parking_lot.items():
+        assigned_user = info["User-Assigned"] if info["User-Assigned"] else "None"
+        print(f"Spot {spot} | Status: {info['Status']} | User: {assigned_user}")
+
+def main_menu():
+    global current_user
+    while True:
+        status_str = f"Logged in as [{current_user['name']}]" if current_user else "Not logged in" 
+        print(f"\n=== PARKING SYSTEM ({status_str}) ===")
+        print("1. Register User")
+        print("2. Log In")
+        print("3. Log Out")
+        print("4. Check-In (Park Vehicle)")
+        print("5. Check-Out & Bill")
+        print("6. View Parking Lot Status")
+        print("7. Exit")
+
+        choice = input("Select an option (1-7): ").strip()
+
+        if choice == "1":
+            Register_User()
+        elif choice == "2":
+            user_login()
+        elif choice == "3":
+            user_logout()
+        elif choice == "4":
+            check_in()
+        elif choice == "5":
+            check_out()
+        elif choice == "6":
+            view_status()
+        elif choice == "7":
+            print("Exiting system. Goodbye!")
+            sys.exit()
+        else:
+            print("Invalid selection. Please enter a number between 1 and 7.")
+
+
+if __name__ == "__main__":
+    main_menu()

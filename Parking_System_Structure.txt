@@ -1,0 +1,102 @@
+Intro:
+In Order to build the parking system, we must first define what we need:
+1.Parking Lot Data
+2.User Data
+3.User Billing Data
+4.A Structure To Store The Data(A Tiny Database)
+
+1.Parking Lot Data
+We will need the following:
+ 1.The Total Parking Lot Space
+ 2.The Total Number Of Free Spaces
+ 3.The Total Number Of Occupied Spaces
+ 
+2.User Data
+We Will Need the following:
+ 1.User Name
+ 2.User Age
+ 3.User ID
+ 4.User Email
+ 5.User Vehicle Type-optional, may help prevent fraud...if implemented    correctly
+ 
+3.User Billing Data
+We Will Need The Following:
+ 1.Registration Fee
+ 2.Fees to Charge per hour
+ 
+4.A Tiny Database
+We will use this to link data between the three structures, to:
+ 1.Determine which parking lot space is free
+ 2.To Determine which User has logged in
+ 3.To Determine How Long A Certain User Has Packed for
+ 4.To Effectively Bill each user the right amount based on hours packed
+
+What are the Data Structures Needed In This Case?
+Well we have many options
+for Python:
+	1.List #User_Lists = ["James","Abdul",..]
+	2.Tuple #Name_Customers = ("James,"Abdul") 
+	3.Set #Names = {"James","Abdul"}
+	4.Dictionaries #User_Vehicle_Dict = {"Name":"Alice","Age":"30"}
+	
+So we now disqualify each based on our needs:
+1.Set--it will be used for some functions
+A Set cannot have duplicate values, so what happens the first names of two customers match?
+counter: We can use the full names instead of the first name. Full names can't match, but what if somehow they just do? It is possible
+A set has its use
+For example: We can Use a set to avoid duplicate number plate entries or ID_Number
+we can also use sets to store use data, create new sets for each user(no names will overlap)
+
+2.Dictionary--will work
+Well for starters we have multiple entries,and therefore dictionaries are not the most efficient. But for parking lot data it is the best.
+WHY? Because a parking lot space can be either vacant or occupied and can have one index only
+example :{"A1":"OCCUPIED} #Parking space A1 is occupied
+
+When billing users, we can map a single user to a list of payments,
+example : {"Abdul":300}#Much more still left out, research is required
+3.Tuple--least best
+We cannot modify tuples, so we cannot add users to an already made tuple
+
+4.List--seems to work best
+Because it can be modified once created. So our list will hold sets or dictionaries to our user data.
+
+5.Examples
+User_List[James,Abdul,Ariana_Grande] #List holds our users
+#And we define each:
+James = {
+	"name":"James Omuri",
+	"age":20
+	}
+Abdul = {
+	"name":"Abdul Rashid Abdalla",
+	"age":19 #we do not know how he afforded a car at 19
+	}
+Ariana_Grande = {
+	"name":"Ariana Grande",
+	"age":30
+	}
+#example 2
+#we can also store user details above in a dictionary
+User_Dict = {
+	"ABC-232":James,
+	"ABC-234":Abdul,
+	"abc-235":Ariana_Grande
+	}#each user has a specific ID assigned to them
+	
+#example 3
+#Now we deal with the parking lot info:
+so each space is given a name, say A1-A30
+
+parking_Lot = {
+	"A1":{
+	"status":"occupied",
+	"user-assigned-to":James #Here we assign James this space
+	}
+#example 4
+#How do we link each?
+	User_Dict["ABC-232"]["age"] = 21 #Tada! Age is edited
+	print(parking_Lot["A1"]["user-assigned-to"]["age"])#accesing data
+	
+
+	
+
